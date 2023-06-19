@@ -109,7 +109,7 @@ int main(int argc, char *argv[]){
 			case 'h':
 				printf("Usage: %s [-hvabndc] [-fo file] [text]...\n", argv[0]);
 			case 'v':
-				printf("Version 1.0\n");
+				printf("Version 1.0 issue https://github.com/susukiue/base64\n");
 				exit(EXIT_SUCCESS);
 			case 'a':
 				append = 1; break;
