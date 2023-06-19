@@ -104,7 +104,7 @@ int main(int argc, char *argv[]){
 	int append = 0, block = 0, newline = 0, size = 0;
 	char opt = 0, decode = 0, encode = 0, buffer[BUFFER_SIZE] = {0}, *temptr = NULL, *infile = NULL, *outfile = NULL;
 
-	while((opt = getopt(argc, argv, "hvabndcf:o:a")) != -1){
+	while((opt = getopt(argc, argv, "hvabndcf:o:")) != -1){
 		switch(opt){
 			case 'h':
 				printf("Usage: %s [-hvabndc] [-fo file] [text]...\n", argv[0]);
