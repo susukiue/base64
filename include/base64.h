@@ -9,7 +9,7 @@
 #define BASE64_MAP_TABLE_EXTERN const unsigned char _BASE64_MAP_TABLE[]
 #endif
 
-#define BASE64_FLOW(n) ((size - index) >= n)
+#define BASE64_FLOW(n) ((size - index) > n)
 #define BASE64_FILL(s, n) (s[n] && s[n] != '=')
 #define BASE64_SWAP(x, y) do{ (x) ^= (y); (y) ^= (x); (x) ^= (y); }while(0)
 #define BASE64_CEIL(x) (((x) == (int)(x)) ? (int)(x) : (int)(x) + 1)
@@ -31,7 +31,7 @@ const unsigned char _base64_map_table[] = {
 };
 
 void base64_init_zero(char* str, int size){
-	for(int i = 0; i < size; i++) str[i] = 0;
+	for(int i = 0; i < size; i++) if(str[i]) str[i] = 0;
 }
 
 int base64_overlen(const char* str, int index){
@@ -55,17 +55,17 @@ char base64_of_map(int ch){
 }
 
 int base64_encode(const char* tc, char* entc, int size, int index, const char* map_table){
-	if(tc && entc && size >= index){
+	if(tc && entc && size > index){
 		if(BASE64_FLOW(0)) entc[index + 0] = base64_map_of(tc[0] >> 2 & 0x3F);
 		if(BASE64_FLOW(1)) entc[index + 1] = base64_map_of(tc[1] ? (tc[0] << 4 & 0x30) | (tc[1] >> 4 & 0x0F) : tc[0] << 4 & 0x30);
 		if(BASE64_FLOW(2)) entc[index + 2] = base64_map_of(tc[1] ? tc[2] ? (tc[1] << 2 & 0x3C) | (tc[2] >> 6 & 0x03) : tc[1] << 2 & 0x3C : 0x40);
-		if(BASE64_FLOW(3)) entc[index + 3] = base64_map_of(tc[2] ? tc[2] & 0x3F : 0x40);
+		if(BASE64_FLOW(3)) entc[index + 3] = base64_map_of(tc[1] && tc[2] ? tc[2] & 0x3F : 0x40);
 	}
 	return base64_overlen(entc, index);
 }
 
 int base64_decode(const char* fc, char* defc, int size, int index, const char* map_table){
-	if(fc && defc && size >= index){
+	if(fc && defc && size > index){
 		char t[4] = { base64_of_map(fc[0]), base64_of_map(fc[1]), base64_of_map(fc[2]), base64_of_map(fc[3]) };
 		if(BASE64_FLOW(0)) defc[index + 0] = (t[0] << 2 & 0xFC) | (t[1] >> 4 & 0x03);
 		if(BASE64_FLOW(1)) defc[index + 1] = BASE64_FILL(t, 2) ? (t[1] << 4 & 0xF0) | (t[2] >> 2 & 0x0F) : 0x00;

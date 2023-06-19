@@ -104,7 +104,10 @@ int main(int argc, char *argv[]){
 	int append = 0, block = 0, newline = 0;
 	char opt = 0, decode = 0, encode = 0, buffer[BUFFER_SIZE] = {0}, *temptr = NULL, *infile = NULL, *outfile = NULL;
 
-	while((opt = getopt(argc, argv, "hvabndcf:o:")) != -1){
+	// 
+	char *overargs[argc - 1];
+	int end = 1, overindex = 0;
+	while((opt = getopt(argc, argv, "hvabndcf:o:")) && end){
 		switch(opt){
 			case 'h':
 				printf("Usage: %s [-hvabndc] [-fo file] [text]...\n", argv[0]);
@@ -126,6 +129,16 @@ int main(int argc, char *argv[]){
 			case 'o':
 				outfile = optarg; break;
 			case '?':
+			//
+			case -1:
+				if(optind < argc){
+					if(optopt == '?'){
+						overargs[overindex++] = argv[optind++];
+					}
+				}
+				else{
+					end = 0;
+				}
 			default:
 				if(optarg == NULL){
 					break;
@@ -158,11 +171,12 @@ int main(int argc, char *argv[]){
 		}
 		fclose(fp);
 	}
-	while(optind < argc){
-		while(base64_overlen(argv[optind], 0)){
-			warpaction(argv[0], decode, encode, argv[optind++], buffer);
+	//
+	if(overindex){
+		for(int i = 0; i < overindex; i++){
+			warpaction(argv[0], decode, encode, overargs[i], buffer);
 			writeres(argv[0], outfile, base64_overlen(buffer, 0), buffer, newline);
-            base64_init_zero(buffer, 0);
+			base64_init_zero(buffer, 0);
 		}
 	}
 
