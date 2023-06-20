@@ -8,7 +8,7 @@
 #define NOT_ACTION_EXCEPTION -21
 #define WRITE_EXCEPTION -22
 
-#define BUFFER_SIZE 300
+#define BUFFER_SIZE 301
 
 extern char *optarg;
 extern int optind, optopt, opterr;
@@ -16,7 +16,7 @@ extern int optind, optopt, opterr;
 int readin(char *buffer, FILE *stream, int newline){
 	char ch;
 	int size = 0;
-	while(size < BUFFER_SIZE){
+	while(size < BUFFER_SIZE-1){
 		ch = fgetc(stream);
 		if(ch == EOF){
 			break;
@@ -74,7 +74,7 @@ char* warpaction(char* program, char de, char en, const char *str, char *buffer)
 	}
 	else{
 		if((de || en) && buffer == NULL){
-			buffer = calloc(BUFFER_SIZE, 1);
+			buffer = calloc(1, BUFFER_SIZE);
 			result = buffer;
 		}
 		if(de){
@@ -167,6 +167,7 @@ int main(int argc, char *argv[]){
 			exit(EXIT_FAILURE);
 		}
 	}
+	free(temptr);
 	//
 	if(overindex){
 		for(int i = 0; i < overindex; i++){
