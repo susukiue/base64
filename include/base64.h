@@ -10,7 +10,6 @@
 #endif
 
 #define BASE64_FLOW(n) ((size - index) > n)
-#define BASE64_FILL(s, n) (s[n] && s[n] != '=')
 #define BASE64_SWAP(x, y) do{ (x) ^= (y); (y) ^= (x); (x) ^= (y); }while(0)
 #define BASE64_CEIL(x) (((x) == (int)(x)) ? (int)(x) : (int)(x) + 1)
 
@@ -68,8 +67,8 @@ int base64_decode(const char* fc, char* defc, int size, int index, const char* m
 	if(fc && defc && size > index){
 		char t[4] = { base64_of_map(fc[0]), base64_of_map(fc[1]), base64_of_map(fc[2]), base64_of_map(fc[3]) };
 		if(BASE64_FLOW(0)) defc[index + 0] = (t[0] << 2 & 0xFC) | (t[1] >> 4 & 0x03);
-		if(BASE64_FLOW(1)) defc[index + 1] = BASE64_FILL(t, 2) ? (t[1] << 4 & 0xF0) | (t[2] >> 2 & 0x0F) : 0x00;
-		if(BASE64_FLOW(2)) defc[index + 2] = BASE64_FILL(t, 3) ? (t[2] << 6 & 0xC0) | (t[3] & 0x3F) : 0x00;
+		if(BASE64_FLOW(1)) defc[index + 1] = (t[1] << 4 & 0xF0) | (t[2] >> 2 & 0x0F);
+		if(BASE64_FLOW(2)) defc[index + 2] = (t[2] << 6 & 0xC0) | (t[3] & 0x3F);
 	}
 	return base64_overlen(defc, index);
 }

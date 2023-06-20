@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
-#include <signal.h>
 #include <getopt.h>
 #include "base64.h"
 
@@ -10,32 +8,25 @@
 #define NOT_ACTION_EXCEPTION -21
 #define WRITE_EXCEPTION -22
 
-#define APPEND 1
 #define BUFFER_SIZE 300
-#define PIPELINE ((void*)-1)
-#define ISPIPE(x, y) ((x) ? (x) : (y))
 
 extern char *optarg;
 extern int optind, optopt, opterr;
-
-void interrupt_callback(int signal){
-	if(signal == SIGINT){
-		exit(EXIT_SUCCESS);
-	}
-}
 
 int readin(char *buffer, FILE *stream, int newline){
 	char ch;
 	int size = 0;
 	while(size < BUFFER_SIZE){
 		ch = fgetc(stream);
-		if(ch == '\n' || ch == EOF){
-			if(ch == '\n' && newline){
-				buffer[size++] = ch;
-			}
+		if(ch == EOF){
 			break;
 		}
-		buffer[size++] = ch;
+		if(newline || ch != '\n'){
+			buffer[size++] = ch;
+		}
+		else{
+			break;
+		}
 	}
 	return size;
 }
@@ -130,7 +121,6 @@ int main(int argc, char *argv[]){
 				if(optarg == NULL){
 					break;
 				}
-				fprintf(stderr, "%s: Unknown option '-%c' !\n", argv[0], optopt);
 				exit(EXIT_FAILURE);
 		}
 	}
@@ -151,12 +141,18 @@ int main(int argc, char *argv[]){
 	}
 	if(infile != NULL){
 		FILE *fp = fopen(infile, "r");
-		while(readin(buffer, fp, newline)){
-			temptr = warpaction(argv[0], decode, encode, buffer, temptr);
-			writeres(argv[0], outfile, base64_overlen(temptr, 0), temptr, newline);
-            base64_init_zero(temptr, 0);
+        if(fp != NULL){
+            while(readin(buffer, fp, newline)){
+                temptr = warpaction(argv[0], decode, encode, buffer, temptr);
+                writeres(argv[0], outfile, base64_overlen(temptr, 0), temptr, newline);
+                base64_init_zero(temptr, 0);
+            }
+            fclose(fp);
+        }
+        else{
+			fprintf(stderr, "%s: The input file '%s' does not exist !\n", argv[0], infile);
+			exit(EXIT_FAILURE);
 		}
-		fclose(fp);
 	}
 	while(optind < argc){
 		while(base64_overlen(argv[optind], 0)){

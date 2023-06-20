@@ -5,7 +5,6 @@ extern const unsigned char _base64_map_table[];
 
 #define BASE64_MAP_TABLE _base64_map_table
 #define BASE64_FLOW(n) ((size - index) > n)
-#define BASE64_FILL(s, n) (s[n] && s[n] != '=')
 #define BASE64_SWAP(x, y) do{ (x) ^= (y); (y) ^= (x); (x) ^= (y); }while(0)
 #define BASE64_CEIL(x) (((x) == (int)(x)) ? (int)(x) : (int)(x) + 1)
 
