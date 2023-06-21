@@ -154,6 +154,7 @@ int main(int argc, char *argv[]){
 			exit(EXIT_FAILURE);
 		}
 	}
+	free(temptr);
 	while(optind < argc){
 		while(base64_overlen(argv[optind], 0)){
 			warpaction(argv[0], decode, encode, argv[optind++], buffer);
